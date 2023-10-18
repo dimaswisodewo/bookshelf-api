@@ -66,6 +66,7 @@ const getAllBooksHandler = (request, h) => {
   const {name, reading, finished} = request.query;
   const isUseQuery = name !== undefined ||
   reading !== undefined || finished !== undefined;
+
   let filteredBooks = books;
 
   if (isUseQuery) {
@@ -77,12 +78,10 @@ const getAllBooksHandler = (request, h) => {
       // Query name
       if (isUseQueryName &&
         !book.name.toLowerCase().includes(name.toLowerCase())) {
-        console.log(book.name + ' ' + name);
         return false;
       }
       // Query reading
       if (isUseQueryReading) {
-        console.log(reading == 1 && !book.reading);
         if (reading == 1 && !book.reading) {
           return false;
         } else if (reading == 0 && book.reading) {
@@ -91,7 +90,6 @@ const getAllBooksHandler = (request, h) => {
       }
       // Query finished
       if (isUseQueryFinished) {
-        console.log(finished == 1 && !book.finished);
         if (finished == 1 && !book.finished) {
           return false;
         } else if (finished == 0 && book.finished) {
@@ -101,10 +99,19 @@ const getAllBooksHandler = (request, h) => {
       return true;
     });
   }
+
+  const booksMapped = filteredBooks.map((book) => {
+    return {
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    };
+  });
+
   const response = h.response({
     status: 'success',
     data: {
-      books: isUseQuery ? filteredBooks : books,
+      books: booksMapped,
     },
   });
   response.code(200);
@@ -119,7 +126,9 @@ const getBookByIdHandler = (request, h) => {
   if (book !== undefined) {
     return {
       status: 'success',
-      data: book,
+      data: {
+        book: book,
+      },
     };
   }
 
